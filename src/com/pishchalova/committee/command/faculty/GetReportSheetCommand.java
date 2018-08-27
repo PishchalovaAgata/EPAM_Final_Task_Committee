@@ -86,7 +86,15 @@ public class GetReportSheetCommand implements Command {
                 throw new CommandException("There is a problem while getting report for faculty with id: " + facultyId + " because of finding faculty by id!", e);
             }
         } else {
-            return "";
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put(CommandParameterConst.FACULTY_NAME, facultyService.findFacultyById(facultyId).getFacultyName());
+                jsonObject.put(CommandParameterConst.ENTRANTS, new JSONArray());
+            } catch (ServiceException e) {
+                throw new CommandException("There is a problem while getting report for faculty with id: " + facultyId + " because of finding faculty by id!", e);
+            }
+
+            return jsonObject.toString();
         }
         LOGGER.log(Level.INFO, "Getting reportSheet for Faculty is completed successfully! Id: " + facultyId);
 
