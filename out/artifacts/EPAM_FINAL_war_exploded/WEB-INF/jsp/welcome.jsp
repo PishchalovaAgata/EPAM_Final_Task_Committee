@@ -1,0 +1,7 @@
+<html>
+<head>
+    <meta http-equiv="refresh" content="0; URL='http://localhost:3000/'"/>
+</head>
+<body>
+</body>
+</html>

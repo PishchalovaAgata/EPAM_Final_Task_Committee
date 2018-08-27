@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="SeleniumTest" verbose="1">
+    <test name="Test">
+        <parameter name="browser" value="chrome"/>
+        <classes>
+            <class name="test.pishchalova.committee.ConnectionPoolTest"/>
+            <class name="test.pishchalova.committee.validation.EntrantValidationTest"/>
+            <class name="test.pishchalova.committee.validation.SubjectValidationTest"/>
+            <class name="test.pishchalova.committee.validation.UserValidationTest"/>
+            <class name="test.pishchalova.committee.EncodingPasswordTest"/>
+            <class name="test.pishchalova.committee.validation.FacultyValidationTest"/>
+        </classes>
+    </test>
+</suite>
