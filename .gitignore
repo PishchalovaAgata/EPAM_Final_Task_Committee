@@ -1,6 +1,6 @@
 .idea/
-/EPAM_FINAL/lib/
-/EPAM_FINAL/out/
-/EPAM_FINAL/web/lib/
+lib/
+out/
+web/lib/
 *.iml
 
