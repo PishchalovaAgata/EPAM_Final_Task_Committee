@@ -75,7 +75,7 @@ public class Entrant extends User {
     }
 
     public enum Status {
-        FREE, ENLISTED, CANCELED, SUBMITTED;
+        FREE, ENLISTED, CANCELLED, SUBMITTED;
 
         private String columnValue;
 

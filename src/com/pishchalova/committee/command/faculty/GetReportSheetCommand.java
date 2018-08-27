@@ -85,6 +85,8 @@ public class GetReportSheetCommand implements Command {
             } catch (ServiceException e) {
                 throw new CommandException("There is a problem while getting report for faculty with id: " + facultyId + " because of finding faculty by id!", e);
             }
+        } else {
+            return "";
         }
         LOGGER.log(Level.INFO, "Getting reportSheet for Faculty is completed successfully! Id: " + facultyId);
 

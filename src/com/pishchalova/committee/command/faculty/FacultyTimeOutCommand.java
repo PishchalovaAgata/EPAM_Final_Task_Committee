@@ -51,6 +51,7 @@ public class FacultyTimeOutCommand implements Command {
                     throw new CommandException("There is a problem while facultyTimeOutCommand because of updating faculty with id" + facultyId, e);
                 }
                 if (!flag) {
+                    System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
                     LOGGER.log(Level.ERROR, "There is a problem while facultyTimeOutCommand because of updating faculty with id" + facultyId);
                     return CommandParameterConst.EMPTY_STRING;
                 }
@@ -65,7 +66,7 @@ public class FacultyTimeOutCommand implements Command {
                     if (i < entry_plan) {
                         entrant.setStatus(Entrant.Status.SUBMITTED);
                     } else {
-                        entrant.setStatus(Entrant.Status.CANCELED);
+                        entrant.setStatus(Entrant.Status.CANCELLED);
                     }
                     entrant.setUnavailable(true);
                     flag = entrantService.updateEntrant(entrant);

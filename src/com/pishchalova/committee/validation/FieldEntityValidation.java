@@ -68,7 +68,6 @@ public class FieldEntityValidation {
         for (String value : values) {
             Matcher matcher = Pattern.compile(NUMBER_IN_RANGE_FORTY_AND_HUNDRED).matcher(value);
             LOGGER.log(Level.INFO, " Validation for Number(40;100): " + value + " " + matcher.matches());
-            System.out.println(matcher + " " + matcher.matches());//todo!!!
             if (!matcher.matches()) {
                 LOGGER.log(Level.INFO, "Validation is completed with problems! ");
                 return false;
@@ -98,7 +97,7 @@ public class FieldEntityValidation {
         return true;
     }
 
-    public static boolean validateTextNumberInRangeTwentyAndThousand(Integer... values){
+    public static boolean validateTextNumberInRangeTwentyAndThousand(Integer... values) {
         if (checkNull(values)) {
             LOGGER.log(Level.INFO, "Number Expressions are not filled!");
             return false;

@@ -14,6 +14,4 @@ public class FacultyValidation {
                 && FieldEntityValidation.validateTextCollocation(facultyName)
                 && FieldEntityValidation.validateTextNumberInRangeTwentyAndThousand(Integer.parseInt(facultyEntryPlan));
     }
-
-
 }

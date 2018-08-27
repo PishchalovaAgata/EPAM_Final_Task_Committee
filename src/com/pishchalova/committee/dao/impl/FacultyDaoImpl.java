@@ -30,7 +30,7 @@ public class FacultyDaoImpl implements FacultyDao {
             "Where committee_db.faculty.enrollment_is_over=0 and committee_db.faculty.end_date_receiving <= ? AND committee_db.faculty.id > 0";
     private static final String SELECT_ALL_FROM_FACULTY = "SELECT committee_db.show_faculties.id, committee_db.show_faculties.name, committee_db.show_faculties.entry_plan, " +
             "committee_db.show_faculties.amount_entrant, committee_db.show_faculties.end_date_receiving," +
-            " committee_db.show_faculties.is_unavailable, committee_db.show_faculties.enrollment_is_over, " +
+            " committee_db.show_faculties.is_unavailable, committee_db.show_faculties.enrollment_is_over,  " +
             "committee_db.show_faculties.subjects FROM show_faculties WHERE show_faculties.is_unavailable = 0";
     private static final String DELETE_FACULTY_BY_ID = "UPDATE committee_db.faculty SET committee_db.faculty.is_unavailable = 1 WHERE committee_db.faculty.id = ?";
     private static final String INSERT_FACULTY = "INSERT INTO committee_db.faculty(committee_db.faculty.name, committee_db.faculty.end_date_receiving, \n" +
@@ -52,10 +52,11 @@ public class FacultyDaoImpl implements FacultyDao {
     private static final String AND = " AND ";
     private static final String ORDER = " ORDER BY show_faculties.name ";
     private static final String DESC = " DESC ";
+    private static final String ASC = " ASC ";
     private static final String COUNT_AMOUNT_OF_FACULTIES = " SELECT COUNT(*) AS amount_of_faculties FROM show_faculties;";
 
 
-    private static final Integer AMOUNT_FACULTIES_ON_ONE_PAGE = 10;
+    private static final Integer AMOUNT_FACULTIES_ON_ONE_PAGE = 5;
     private static final Integer AMOUNT_OF_SUBJECTS_FOR_ONE_FACULTY = 3;
 
     public enum FacultyColumn {
@@ -290,6 +291,67 @@ public class FacultyDaoImpl implements FacultyDao {
         return deleteSubjectsForFacultyId(newFaculty.getId()) && createSubjectsForFacultyId(newFaculty);
     }
 
+    public Integer amountOfFilteredFaculties(ArrayList<Integer> listSubjects) throws DAOException {
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) AS amount_of_faculties FROM ");
+        if (listSubjects.size() > AMOUNT_OF_SUBJECTS_FOR_ONE_FACULTY) {
+            throw new DAOException("Size Of listSubjects is Incorrect!!!");
+        } else if (!listSubjects.isEmpty()) {
+            query.append("(" + SELECT_ALL_FROM_FACULTY);
+            for (int i = 1; i <= listSubjects.size(); i++) {
+                query.append(AND);
+                query.append(FILTER_FACULTIES_BY_SUBJECT);
+            }
+            query.append(") AS X");
+        } else {
+            return countAmountOfFaculties();
+        }
+        ProxyConnection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = ConnectionPool.INSTANCE.takeConnection();
+            preparedStatement = Objects.requireNonNull(connection).prepareStatement(query.toString());
+            if (preparedStatement != null) {
+                for (int i = 0; i < listSubjects.size(); i++) {
+                    preparedStatement.setInt(i + 1, listSubjects.get(i));
+                }
+                resultSet = preparedStatement.executeQuery();
+            }
+            if (resultSet != null && resultSet.next()) {
+                return resultSet.getInt(FacultyColumn.AMOUNT_OF_FACULTIES_COLUMN.getColumnValue());
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DAOException("There is a problem while selecting all faculties!", e);
+        } finally {
+            DaoHelper.closeResource(resultSet, connection, preparedStatement);
+        }
+
+    }
+
+
+    @Override
+    public Integer countAmountOfFaculties() throws DAOException {
+        LOGGER.log(Level.INFO, "Selecting amount Of Faculties!!!");
+        ProxyConnection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = ConnectionPool.INSTANCE.takeConnection();
+            statement = Objects.requireNonNull(connection).createStatement();
+            resultSet = statement.executeQuery(COUNT_AMOUNT_OF_FACULTIES);
+            if (resultSet.next()) {
+                return resultSet.getInt(FacultyColumn.AMOUNT_OF_FACULTIES_COLUMN.getColumnValue());
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DAOException("There is a problem while selecting all faculties!", e);
+        } finally {
+            DaoHelper.closeResource(resultSet, connection, statement);
+        }
+    }
+
+
     @Override
     public ArrayList<Faculty> filterFacultiesBySubjects(ArrayList<Integer> listSubjects, Integer fromPosition, boolean descOrder) throws DAOException {
         LOGGER.log(Level.INFO, "Filtering faculties by subjects! With ids " + listSubjects + " from position "
@@ -306,8 +368,11 @@ public class FacultyDaoImpl implements FacultyDao {
         query.append(ORDER);
         if (!descOrder) {
             query.append(DESC);
+        } else {
+            query.append(ASC);
         }
         query.append(LIMIT_AMOUNT_FACULTIES);
+        System.out.println(query.toString());
         ResultSet resultSet = null;
         ProxyConnection connection = null;
         PreparedStatement preparedStatement = null;
@@ -322,6 +387,7 @@ public class FacultyDaoImpl implements FacultyDao {
                 preparedStatement.setInt(listSubjects.size() + 2, fromPosition);
                 resultSet = preparedStatement.executeQuery();
             }
+
             ArrayList<Faculty> facultyList = new ArrayList<>();
             if (resultSet != null) {
                 while (resultSet.next()) {
@@ -373,28 +439,8 @@ public class FacultyDaoImpl implements FacultyDao {
         }
     }
 
-    @Override
-    public Integer countAmountOfFaculties() throws DAOException {
-        LOGGER.log(Level.INFO, "Selecting amount Of Faculties!!!");
-        ProxyConnection connection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = ConnectionPool.INSTANCE.takeConnection();
-            statement = Objects.requireNonNull(connection).createStatement();
-            resultSet = statement.executeQuery(COUNT_AMOUNT_OF_FACULTIES);
-            if (resultSet.next()) {
-                return resultSet.getInt(FacultyColumn.AMOUNT_OF_FACULTIES_COLUMN.getColumnValue());
-            }
-            return 0;
-        } catch (SQLException e) {
-            throw new DAOException("There is a problem while selecting all faculties!", e);
-        } finally {
-            DaoHelper.closeResource(resultSet, connection, statement);
-        }
-    }
 
-@Override
+    @Override
     public ArrayList<Integer> findFacultiesByDate(Long dateInMilliSec) throws DAOException {
         LOGGER.log(Level.INFO, "Selecting faculties by date!");
         ProxyConnection connection = null;

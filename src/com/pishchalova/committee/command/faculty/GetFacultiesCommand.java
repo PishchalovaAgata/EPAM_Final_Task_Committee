@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class GetFacultiesCommand implements Command {
 
     private static final Logger LOGGER = LogManager.getLogger(GetFacultiesCommand.class);
-    private static final Double AMOUNT_FACULTIES_ON_ONE_PAGE = 10.0;
+    private static final Double AMOUNT_FACULTIES_ON_ONE_PAGE = 5.0;
 
     public String doGet(HttpServletRequest request, HttpServletResponse response) {
         return null;
@@ -50,16 +50,19 @@ public class GetFacultiesCommand implements Command {
         Integer numberOfPage = jObj.getInt(CommandParameterConst.PAGE);
         JSONObject filterObject = jObj.getJSONObject(CommandParameterConst.FILTER);
         boolean filterOrder;
+        int amountPages;
 
         if (filterObject.length() == 0) {
             try {
                 if (userService.findUserById(userId).getRole() == User.Role.ENTRANT && entrantService.filterEntrantsByUserId(userId) != null) {
                     ArrayList<Integer> subjectsId = entrantService.findSubjectsByEntrantId(entrantService.filterEntrantsByUserId(userId).getEntrantId());
                     LOGGER.log(Level.INFO, "Try to filter faculties for entrant. SubjectsIds:" + subjectsId.toString());
-                    faculties = facultyService.filterFacultiesBySubjects(numberOfPage - 1, false, subjectsId.toArray(new Integer[0]));
+                    faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), false, subjectsId.toArray(new Integer[0]));
+                    amountPages = (int) Math.ceil(facultyService.ffff(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
                 } else {
                     LOGGER.log(Level.INFO, "Try to filter faculties!");
-                    faculties = facultyService.filterFacultiesBySubjects(numberOfPage - 1, false);
+                    faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), false);
+                    amountPages = (int) Math.ceil(facultyService.countAmountOfAllFaculties() / AMOUNT_FACULTIES_ON_ONE_PAGE);
                 }
             } catch (ServiceException e) {
                 throw new CommandException("There is a problem while getting faculties because of getting part of faculties!", e);
@@ -79,7 +82,9 @@ public class GetFacultiesCommand implements Command {
             }
             LOGGER.log(Level.INFO, "Try to filter faculties. SubjectsIds:" + subjectsId.toString() + " order " + filterOrder);
             try {
-                faculties = facultyService.filterFacultiesBySubjects(numberOfPage - 1, filterOrder, subjectsId.toArray(new Integer[0]));
+                faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), filterOrder, subjectsId.toArray(new Integer[0]));
+                amountPages = (int) Math.ceil(facultyService.ffff(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
+                System.out.println(amountPages);
             } catch (ServiceException e) {
                 throw new CommandException("There is a problem while getting faculties because of filtering faculties by subjects !", e);
             }
@@ -113,11 +118,7 @@ public class GetFacultiesCommand implements Command {
                 }
                 jsonObjectArrayList.put(object);
             }
-            try {
-                finalObject.put(CommandParameterConst.TOTAL_PAGES, Math.ceil(facultyService.countAmountOfAllFaculties() / AMOUNT_FACULTIES_ON_ONE_PAGE));
-            } catch (ServiceException e) {
-                throw new CommandException("There is a problem while getting faculties because of counting amount of all faculties!", e);
-            }
+            finalObject.put(CommandParameterConst.TOTAL_PAGES, amountPages);
             finalObject.put(CommandParameterConst.FACULTIES, jsonObjectArrayList);
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
             return finalObject.toString();
