@@ -29,15 +29,15 @@ public class FacultyService {
         }
     }
 
-    public final Integer ffff(Integer... subjectsId) throws ServiceException {
+    public final Integer getAmountOfFilteredFaculties(Integer... subjectsId) throws ServiceException {
 
-        LOGGER.log(Level.INFO, "Filtering faculties by subjects with ids " + Arrays.toString(subjectsId));
+        LOGGER.log(Level.INFO, "Getting amount of Filtering faculties by subjects with ids " + Arrays.toString(subjectsId));
         try {
             ArrayList<Integer> arrayListSubjectsId = new ArrayList<>();
             Collections.addAll(arrayListSubjectsId, subjectsId);
             return facultyDao.amountOfFilteredFaculties(arrayListSubjectsId);
         } catch (DAOException e) {
-            throw new ServiceException("Problem with filtering subjects for faculty! (Faculty Service) Id: " + Arrays.toString(subjectsId), e);
+            throw new ServiceException("Problem with Getting amount of filtering subjects for faculty! (Faculty Service) Id: " + Arrays.toString(subjectsId), e);
         }
     }
 

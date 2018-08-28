@@ -54,6 +54,9 @@ public class FacultyDaoImpl implements FacultyDao {
     private static final String DESC = " DESC ";
     private static final String ASC = " ASC ";
     private static final String COUNT_AMOUNT_OF_FACULTIES = " SELECT COUNT(*) AS amount_of_faculties FROM show_faculties;";
+    private static final String PART_QUERY_FOR_AMOUNT_FILTERED_FACULTIES = "SELECT COUNT(*) AS amount_of_faculties FROM ";
+    private static final String ALIAS = ") AS X";
+    private static final String BRACKET = "(";
 
 
     private static final Integer AMOUNT_FACULTIES_ON_ONE_PAGE = 5;
@@ -65,7 +68,6 @@ public class FacultyDaoImpl implements FacultyDao {
         AMOUNT_ENTRANT_COLUMN("amount_entrant"),
         NAME_COLUMN("name"),
         DATE_COLUMN("end_date_receiving"),
-        LOGO_COLUMN("logo"),
         IS_UNAVAILABLE_COLUMN("is_unavailable"),
         ENROLLMENT_IS_OVER("enrollment_is_over"),
         SUBJECTS_COLUMN("subjects"),
@@ -253,7 +255,7 @@ public class FacultyDaoImpl implements FacultyDao {
                 if (preparedStatement != null) {
                     preparedStatement.setInt(1, faculty.getId());
                     preparedStatement.setInt(2, faculty.getSubjectsId().get(i));
-                    if (!(preparedStatement.executeUpdate() > 0)) {//todo:what&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+                    if (!(preparedStatement.executeUpdate() > 0)) {
                         return false;
                     }
                 }
@@ -292,16 +294,16 @@ public class FacultyDaoImpl implements FacultyDao {
     }
 
     public Integer amountOfFilteredFaculties(ArrayList<Integer> listSubjects) throws DAOException {
-        StringBuilder query = new StringBuilder("SELECT COUNT(*) AS amount_of_faculties FROM ");
+        StringBuilder query = new StringBuilder(PART_QUERY_FOR_AMOUNT_FILTERED_FACULTIES);
         if (listSubjects.size() > AMOUNT_OF_SUBJECTS_FOR_ONE_FACULTY) {
             throw new DAOException("Size Of listSubjects is Incorrect!!!");
         } else if (!listSubjects.isEmpty()) {
-            query.append("(" + SELECT_ALL_FROM_FACULTY);
+            query.append(BRACKET + SELECT_ALL_FROM_FACULTY);
             for (int i = 1; i <= listSubjects.size(); i++) {
                 query.append(AND);
                 query.append(FILTER_FACULTIES_BY_SUBJECT);
             }
-            query.append(") AS X");
+            query.append(ALIAS);
         } else {
             return countAmountOfFaculties();
         }
@@ -326,7 +328,6 @@ public class FacultyDaoImpl implements FacultyDao {
         } finally {
             DaoHelper.closeResource(resultSet, connection, preparedStatement);
         }
-
     }
 
 

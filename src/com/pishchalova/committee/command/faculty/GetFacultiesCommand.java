@@ -58,7 +58,7 @@ public class GetFacultiesCommand implements Command {
                     ArrayList<Integer> subjectsId = entrantService.findSubjectsByEntrantId(entrantService.filterEntrantsByUserId(userId).getEntrantId());
                     LOGGER.log(Level.INFO, "Try to filter faculties for entrant. SubjectsIds:" + subjectsId.toString());
                     faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), false, subjectsId.toArray(new Integer[0]));
-                    amountPages = (int) Math.ceil(facultyService.ffff(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
+                    amountPages = (int) Math.ceil(facultyService.getAmountOfFilteredFaculties(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
                 } else {
                     LOGGER.log(Level.INFO, "Try to filter faculties!");
                     faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), false);
@@ -83,7 +83,7 @@ public class GetFacultiesCommand implements Command {
             LOGGER.log(Level.INFO, "Try to filter faculties. SubjectsIds:" + subjectsId.toString() + " order " + filterOrder);
             try {
                 faculties = facultyService.filterFacultiesBySubjects((int) ((numberOfPage - 1) * AMOUNT_FACULTIES_ON_ONE_PAGE), filterOrder, subjectsId.toArray(new Integer[0]));
-                amountPages = (int) Math.ceil(facultyService.ffff(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
+                amountPages = (int) Math.ceil(facultyService.getAmountOfFilteredFaculties(subjectsId.toArray(new Integer[0])) / AMOUNT_FACULTIES_ON_ONE_PAGE);
                 System.out.println(amountPages);
             } catch (ServiceException e) {
                 throw new CommandException("There is a problem while getting faculties because of filtering faculties by subjects !", e);
